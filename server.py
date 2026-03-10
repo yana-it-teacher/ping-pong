@@ -50,7 +50,7 @@ class GameServer:
                 self.connected[pid] = False
                 self.game_over = True
                 self.winner = 1 - pid  # інший гравець автоматично виграє
-                print(f"Гравець {pid} відключився. Переміг гравець {1 - pid}.")
+                print(f"Player {pid} left. Winner {1 - pid}.")
 
     def broadcast_state(self):
         state = json.dumps({
@@ -117,12 +117,12 @@ class GameServer:
 
     def accept_players(self):
         for pid in [0, 1]:
-            print(f"Очікуємо гравця {pid}...")
+            print(f"Wait player {pid}...")
             conn, _ = self.server.accept()
             self.clients[pid] = conn
             conn.sendall((str(pid) + "\n").encode())
             self.connected[pid] = True
-            print(f"Гравець {pid} приєднався")
+            print(f"Player {pid} connected")
             threading.Thread(target=self.handle_client, args=(pid,), daemon=True).start()
 
     def run(self):
@@ -134,7 +134,7 @@ class GameServer:
             while not self.game_over and all(self.connected.values()):
                 time.sleep(0.1)
 
-            print(f"Гравець {self.winner} переміг!")
+            print(f"Player {self.winner} win!")
             time.sleep(5)
 
             # Закриваємо старі з'єднання
