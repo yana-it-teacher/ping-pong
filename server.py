@@ -8,6 +8,8 @@ WIDTH, HEIGHT = 800, 600
 BALL_SPEED = 5
 PADDLE_SPEED = 10
 COUNTDOWN_START = 3
+GOAL_TOP = 180
+GOAL_BOTTOM = 400
 
 class GameServer:
     def __init__(self, host='localhost', port=8080):
@@ -67,7 +69,7 @@ class GameServer:
                     conn.sendall(state.encode())
                 except:
                     self.connected[pid] = False
-
+    
     def ball_logic(self):
         while self.countdown > 0:
             time.sleep(1)
@@ -77,22 +79,43 @@ class GameServer:
 
         while not self.game_over:
             with self.lock:
+                # рух м'яча
                 self.ball['x'] += self.ball['vx']
                 self.ball['y'] += self.ball['vy']
 
-                if self.ball['y'] <= 60 or self.ball['y'] >= HEIGHT:
+                # верхня і нижня межа
+                if self.ball['y'] <= 0 or self.ball['y'] >= HEIGHT:
                     self.ball['vy'] *= -1
                     self.sound_event = "wall_hit"
 
-                if (self.ball['x'] <= 40 and self.paddles[0] <= self.ball['y'] <= self.paddles[0] + 100) or \
-                   (self.ball['x'] >= WIDTH - 40 and self.paddles[1] <= self.ball['y'] <= self.paddles[1] + 100):
-                    self.ball['vx'] *= -1
-                    self.sound_event = 'platform_hit'
 
-                if self.ball['x'] < 0:
+                # відбиття від платформ
+                if (self.ball['x'] <= 40 and self.paddles[0] <= self.ball['y'] <= self.paddles[0] + 100) or \
+                (self.ball['x'] >= WIDTH - 40 and self.paddles[1] <= self.ball['y'] <= self.paddles[1] + 100):
+
+                    self.ball['vx'] *= -1
+                    self.sound_event = "platform_hit"
+
+
+                # відбиття від бокових стін (там де немає воріт)
+
+                # ліва стіна
+                if self.ball['x'] <= 0:
+                    if not (GOAL_TOP <= self.ball['y'] <= GOAL_BOTTOM):
+                        self.ball['vx'] *= -1
+                        self.sound_event = "wall_hit"
+
+                # права стіна
+                if self.ball['x'] >= WIDTH:
+                    if not (GOAL_TOP <= self.ball['y'] <= GOAL_BOTTOM):
+                        self.ball['vx'] *= -1
+                        self.sound_event = "wall_hit"
+
+                if self.ball['x'] < 0 and GOAL_TOP <= self.ball['y'] <= GOAL_BOTTOM:
                     self.scores[1] += 1
                     self.reset_ball()
-                elif self.ball['x'] > WIDTH:
+
+                elif self.ball['x'] > WIDTH and GOAL_TOP <= self.ball['y'] <= GOAL_BOTTOM:
                     self.scores[0] += 1
                     self.reset_ball()
 
