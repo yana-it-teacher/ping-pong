@@ -45,9 +45,9 @@ class GameServer:
                 data = conn.recv(64).decode()
                 with self.lock:
                     if data == "UP":
-                        self.paddles[pid] = max(60, self.paddles[pid] - PADDLE_SPEED)
+                        self.paddles[pid] = max(0, self.paddles[pid] - PADDLE_SPEED)
                     elif data == "DOWN":
-                        self.paddles[pid] = min(HEIGHT - 100, self.paddles[pid] + PADDLE_SPEED)
+                        self.paddles[pid] = min(HEIGHT - 150, self.paddles[pid] + PADDLE_SPEED)
         except:
             with self.lock:
                 self.connected[pid] = False
