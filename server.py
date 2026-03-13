@@ -20,6 +20,7 @@ class GameServer:
 
         self.clients = {0: None, 1: None}
         self.connected = {0: False, 1: False}
+        self.names = {0: "Player 1", 1: "Player 2"}
         self.lock = threading.Lock()
         self.reset_game_state()
         self.sound_event = None
@@ -61,7 +62,8 @@ class GameServer:
             "scores": self.scores,
             "countdown": max(self.countdown, 0),
             "winner": self.winner if self.game_over else None,
-            "sound_event": self.sound_event
+            "sound_event": self.sound_event,
+            "names": self.names
         }) + "\n"
         for pid, conn in self.clients.items():
             if conn:
@@ -144,6 +146,14 @@ class GameServer:
             conn, _ = self.server.accept()
             self.clients[pid] = conn
             conn.sendall((str(pid) + "\n").encode())
+
+            try:
+                player_name = conn.recv(1024).decode().strip()
+                if player_name:
+                    self.names[pid] = player_name
+            except:
+                pass
+
             self.connected[pid] = True
             print(f"Player {pid} connected")
             threading.Thread(target=self.handle_client, args=(pid,), daemon=True).start()

@@ -27,6 +27,7 @@ def connect_to_server():
             buffer = ""
             game_state = {}
             my_id = int(client.recv(24).decode())
+            client.sendall(name.encode())
             return my_id, game_state, buffer, client
         except:
             pass
@@ -49,7 +50,7 @@ font_dir = "assets/fonts/Orbitron-Regular.ttf"
 # --- ШРИФТИ ---
 font_win = font.Font(font_dir, 72)
 font_main = font.Font(font_dir, 36)
-font_score = font.Font("assets/fonts/Orbitron-Bold.ttf", 30)
+font_score = font.Font("assets/fonts/Orbitron-Bold.ttf", 20)
 
 # --- ЗОБРАЖЕННЯ ----
 bg_img = image.load("assets/bg.png")
@@ -123,7 +124,17 @@ while True:
         )
         screen.blit(score_text, (WIDTH // 2 -25, 20))
         
-        
+        if "names" in game_state:
+            # json перетворює ключі-числа на рядки, тому використовуємо '0' та '1'
+            name1_text = font_score.render(game_state['names']['0'], True, (3, 211, 252))
+            name2_text = font_score.render(game_state['names']['1'], True, (3, 211, 252))
+            
+            # Малюємо ім'я першого гравця зліва
+            screen.blit(name1_text, (200, 15))
+            
+            # Малюємо ім'я другого гравця справа (відступаємо від правого краю на ширину тексту)
+            screen.blit(name2_text, (WIDTH - name2_text.get_width() - 200, 15))
+
         if game_state['sound_event']:
             if game_state['sound_event'] == 'wall_hit':
                 # звук відбиття м'ячика від стін
