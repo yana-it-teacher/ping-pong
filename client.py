@@ -18,6 +18,7 @@ init()
 screen = display.set_mode((WIDTH, HEIGHT))
 clock = time.Clock()
 display.set_caption("Ping-Pong")
+mixer.init()
 # ---СЕРВЕР ---
 def connect_to_server():
     while True:
@@ -62,7 +63,11 @@ paddle_img = transform.scale(paddle_img, (20, 130))
 ball_img = image.load("assets/ball.png")
 ball_img = transform.scale(ball_img, (30, 30))
 # --- ЗВУКИ ---
-
+sound_ball = mixer.Sound("assets/sounds/ball_hit.mp3")
+sound_wall = mixer.Sound("assets/sounds/wall_hit.wav")
+mixer.music.load("assets/sounds/game.mp3")
+mixer.music.set_volume(0.2)
+mixer.music.play(-1)
 # --- ГРА ---
 game_over = False
 winner = None
@@ -70,6 +75,7 @@ you_winner = None
 my_id, game_state, buffer, client = connect_to_server()
 Thread(target=receive, daemon=True).start()
 ball_angle = 0
+
 while True:
     for e in event.get():
         if e.type == QUIT:
@@ -138,10 +144,12 @@ while True:
         if game_state['sound_event']:
             if game_state['sound_event'] == 'wall_hit':
                 # звук відбиття м'ячика від стін
-                pass
+                sound_wall.play()
+                sound_wall.set_volume(0.2)
             if game_state['sound_event'] == 'platform_hit':
                 # звук відбиття м'ячика від платформи
-                pass
+                sound_ball.play()
+                sound_ball.set_volume(0.2)
 
     else:
         wating_text = font_main.render(f"Download...", True, (255, 255, 255))

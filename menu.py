@@ -4,7 +4,10 @@ import subprocess
 import random
 
 pygame.init()
-
+pygame.mixer.init()
+pygame.mixer.music.load("assets/sounds/start_menu.mp3")
+pygame.mixer.music.set_volume(0.2)
+pygame.mixer.music.play(-1)
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Ping Pong")
